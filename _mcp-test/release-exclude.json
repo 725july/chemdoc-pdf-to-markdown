@@ -1,0 +1,291 @@
+{
+  "schema": 1,
+  "note": "发布排除清单（B4）。语义：把工作区里**不能进发布包**的东西列清楚，由 `_mcp-test/release_check.py` 强制校验。改这份文件 = 改发布边界，**必须**同时让 selftest 与 `release_check.py check` 全绿。",
+  "exclude_paths": [
+    {
+      "path": "build-dual-mcp-book-skill",
+      "why": "第三方旧 skill 原始目录：**无 LICENSE**（默认保留所有权利）→ 不可再分发，且当年被改过 2 个文件"
+    },
+    {
+      "path": "_mcp-test/pristine-check",
+      "why": "上述 skill 的冻结副本（漂移基线，本地留用；不可分发）"
+    },
+    {
+      "path": "_docs",
+      "why": "第三方 API/README 资料（非本项目文档）"
+    },
+    {
+      "path": "trash",
+      "why": "清理批次（一次性产物；只移动不删除的暂存区）"
+    },
+    {
+      "path": ".tmp-vl",
+      "why": "临时区与沙箱 shim（含本地临时目录）"
+    },
+    {
+      "path": ".secrets",
+      "why": "密钥（若存在；密钥本应放在工作区之外）"
+    },
+    {
+      "path": "secrets.json",
+      "why": "同上：密钥文件绝不可进发布包"
+    },
+    {
+      "path": "_test-inputs",
+      "why": "含**受版权书的切片**与标定语料（不内置任何书）"
+    },
+    {
+      "path": "ocr-raw",
+      "why": "引擎冻结产物：**书的衍生数据**"
+    },
+    {
+      "path": "s0-profiles",
+      "why": "同上（含书页尺寸/版式统计）"
+    },
+    {
+      "path": "s2-ir",
+      "why": "同上（书的 IR）"
+    },
+    {
+      "path": "s3-out",
+      "why": "同上（差异与出题）"
+    },
+    {
+      "path": "s4-out",
+      "why": "同上（探针产物）"
+    },
+    {
+      "path": "s5-out",
+      "why": "同上（判定队列与裁图）"
+    },
+    {
+      "path": "s6-out",
+      "why": "同上（装配中间产物）"
+    },
+    {
+      "path": "s7-out",
+      "why": "同上（**交付物本体**，属用户数据）"
+    },
+    {
+      "path": "s8-out",
+      "why": "同上"
+    },
+    {
+      "path": "golden",
+      "why": "通道 B 誊录与裁图（书的衍生数据）"
+    },
+    {
+      "path": "errata",
+      "why": "勘误数据（书的衍生数据）"
+    },
+    {
+      "path": "dual-mcp-runs",
+      "why": "早期 run 目录（书 + 引擎产物）"
+    },
+    {
+      "path": "dual-mcp-runs-cmpfix",
+      "why": "同上"
+    },
+    {
+      "path": "s5-pilot",
+      "why": "试点 run 的产物（书的衍生数据）"
+    },
+    {
+      "path": "_acl-repair",
+      "why": "本机 ACL 修复的备份与回滚脚本（环境专用）"
+    },
+    {
+      "path": ".venv-dual-mcp",
+      "why": "虚拟环境（由安装层重建）"
+    },
+    {
+      "path": ".venv-paddle",
+      "why": "同上（重依赖，默认不装）"
+    },
+    {
+      "path": "_wheels",
+      "why": "离线 wheel 包（环境专用）"
+    },
+    {
+      "path": ".uv-cache",
+      "why": "包管理缓存"
+    },
+    {
+      "path": ".paddle-home",
+      "why": "本地 Paddle 模型与缓存"
+    },
+    {
+      "path": "_mcp-test/baseline-before-comparator-fix",
+      "why": "旧 run 基线数据（书的衍生：对照页/structure-map）"
+    },
+    {
+      "path": "_mcp-test/ink-coverage",
+      "why": "墨量诊断数据（书的衍生）"
+    },
+    {
+      "path": "_mcp-test/mineru-only-experiment",
+      "why": "早期 MinerU 单引擎实验数据（书的衍生）"
+    },
+    {
+      "path": "_mcp-test/paddle-structured-dump",
+      "why": "Paddle 结构转储（书的衍生；当前为空目录）"
+    },
+    {
+      "path": "_mcp-test/retrieval-pilot",
+      "why": "检索试点数据（书的衍生）"
+    },
+    {
+      "path": "chemdoc-pdf-to-markdown",
+      "why": "**分发副本**（自包含的「新鲜下载」包，2026-10-13 由用户要求生成）：它就是发布集的副本，不进发布集本身（否则套娃：发布集里含一份发布集），也不重复参与内容规则扫描"
+    },
+    {
+      "path": "books.json",
+      "why": "**数据**：这台机器的书注册表（SPEC §3.13 起权威位置 = 数据根）。发布集只带 `_mcp-test/books.sample.json` 模板。"
+    },
+    {
+      "path": "books-removed.jsonl",
+      "why": "**数据**：注销台账（只追加，供回滚）"
+    },
+    {
+      "path": "_mcp-test/books.json",
+      "why": "旧位置注册表（B2b 前）；发布集不应再出现它（兼容读取用）"
+    },
+    {
+      "path": "_mcp-test/newrun.txt",
+      "why": "**开发残留**：2026-10-06 的一次运行留下的便签（一行旧路径），**无任何代码引用** → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/serialization_fold_diagnostic.json",
+      "why": "**开发残留**：已被排除的**冻结诊断脚本**的输出（31 KB），运行期**无人读** → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/copy_release.py",
+      "why": "**维护者脚本**：刷新分发副本（算发布集 + 修剪多余文件）；不是给下载者用的 → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/wheelhouse.py",
+      "why": "**维护者脚本**：从本地缓存重打包离线 wheel 房（不联网）；下载者只需要随包带的 `_wheels/` → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/layout_calibrate.py",
+      "why": "**标定诊断**：版式回退的种子扫描；需要本地真实语料，样本不足时结论不外推；不面向下载者 → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/measurements/layout-calibration.json",
+      "why": "**标定数据**：书的衍生（逐页顺序指标）；只在本机用，不外推 → 不进发布集"
+    },
+    {
+      "path": "_mcp-test/measurements/layout-calibration-seed.tsv",
+      "why": "**标定数据**：待人工标注的种子页（书的衍生）→ 不进发布集"
+    },
+    {
+      "path": "_mcp-test/measurements/layout-calibration-cards.md",
+      "why": "**标定数据**：对照卡里的块文本是书的衍生（实验性，SPEC §0.4 X-2）→ 不进发布集"
+    },
+    {
+      "path": "docs",
+      "why": "**开发文档**（SPEC 全文 + 120 轮变更记录 + 全部测试证据/结果件）：给 agent 与开发用，**不进发布集的「产品」**。分发副本自带面向使用者的精简文档（**副本自带、不同步**，见 copy_release.py 的 COPY_OWNED）"
+    },
+    {
+      "path": "AGENTS.md",
+      "why": "**给 agent 的工作入口**（含大量测试/运维细节）→ 不进发布集；副本自带面向使用者的 AGENTS.md（副本自带、不同步）"
+    },
+    {
+      "path": "SKILL.md",
+      "why": "**给 agent 的技能入口**（含内部约定）→ 不进发布集；副本自带面向使用者的 SKILL.md（副本自带、不同步）"
+    },
+    {
+      "path": ".local",
+      "why": "**机器本地物**的唯一去处（venv / 模型缓存 / uv 缓存 / 临时目录）。不是产品内容；`copy_release.py` 也把它列入 NEVER_PRUNE（装好的环境不许被修剪）"
+    }
+  ],
+  "exclude_globs": [
+    "**/*.pdf",
+    "**/*.zip",
+    "**/*.log",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "_mcp-test/probe_*.py",
+    "_mcp-test/verify_*.py",
+    "_mcp-test/check_*.py",
+    "_mcp-test/s0_probe_*.py",
+    "_mcp-test/s2_probe_*.py",
+    "_mcp-test/s3_probe_*.py",
+    "_mcp-test/gate_sim.py",
+    "_mcp-test/handshake.py",
+    "_mcp-test/add_candidate_anchors.py",
+    "_mcp-test/author_phase4_review.py",
+    "_mcp-test/build_retrieval_corpora.py",
+    "_mcp-test/compare_engines_native.py",
+    "_mcp-test/dump_mineru_blocks.py",
+    "_mcp-test/geometry_without_content_check.py",
+    "_mcp-test/ink_coverage_check.py",
+    "_mcp-test/inspect_ocr_raw.py",
+    "_mcp-test/lexical_searchability.py",
+    "_mcp-test/lexical_searchability_check.py",
+    "_mcp-test/paddle_run_stability.py",
+    "_mcp-test/serialization_fold_diagnostic.py",
+    "_mcp-test/write_pilot_tasks.py"
+  ],
+  "glob_exclusions_why": "冻结诊断脚本（按裁定不动、仍 import PyMuPDF）+ 二进制/缓存。逐条理由见各自文件头的『冻结』说明；`*` 不跨目录，`**` 跨目录。",
+  "content_rules": [
+    {
+      "id": "no-pymupdf",
+      "severity": "violation",
+      "include": [
+        "*.py"
+      ],
+      "pattern": "^[ \\t]*(import|from)[ \\t]+(pymupdf|fitz)\\b",
+      "why": "PyMuPDF 是 AGPL-3.0；发布集里不得出现对它的 import（渲染已换 pypdfium2+pypdf）"
+    },
+    {
+      "id": "no-secret-literal",
+      "severity": "violation",
+      "include": [
+        "*.py",
+        "*.json",
+        "*.md",
+        "*.ps1",
+        "*.cmd",
+        "*.txt",
+        "*.toml",
+        "*.yml",
+        "*.yaml"
+      ],
+      "pattern": "(?i)[\"\\x27]?(api[_-]?key|access[_-]?token|secret|password)[\"\\x27]?\\s*[:=]\\s*[\"\\x27][A-Za-z0-9_\\-]{20,}[\"\\x27]",
+      "why": "疑似把密钥写死进文件；密钥只许存在于进程环境或工作区外的 secrets.json"
+    },
+    {
+      "id": "no-personal-path",
+      "severity": "warning",
+      "include": [
+        "*.py",
+        "*.md",
+        "*.json"
+      ],
+      "pattern": "[A-Za-z]:[\\\\/]+Users[\\\\/]+",
+      "why": "个人机器路径（对外发布前清掉；**项目自己的开发目录**不算）"
+    },
+    {
+      "id": "no-dev-abs-path",
+      "severity": "violation",
+      "include": [
+        "*.py",
+        "*.cmd",
+        "*.ps1",
+        "*.json",
+        "*.txt",
+        "*.md"
+      ],
+      "pattern": "(?i)[A-Za-z]:[\\\\/]+AIwork",
+      "why": "开发机绝对路径：产品里必须用 %~dp0 / paths.TOOLS_ROOT 这类相对出口；本机路径不进发布集（旧规则只查用户目录，漏了这一类）"
+    }
+  ],
+  "known_copyrighted_sources": [
+    "DDAL07-01 濒危之城.pdf",
+    "有机化学_刘思全 科学出版社13913683.pdf",
+    "物理化学简明教程 第4版 (印永嘉，奚正楷，张树永等编) (z-library.sk, 1lib.sk, z-lib.sk).pdf",
+    "普通化学原理 第4版 (华彤文,王颖霞,卞江,陈景祖)-22-30.pdf"
+  ],
+  "copyright_note": "工具**不内置任何书**。上述源书及其任何衍生数据（切片、引擎输出、画像、IR、判定裁图、交付物）都**不得进发布包**；用户对自己的 PDF 与『上传到云服务』的行为负责。"
+}

@@ -1,0 +1,26 @@
+# Third-party dependencies of the main workflow -- DERIVED FROM MEASUREMENT, not from memory.
+# (SPEC 7.10 / B2, 2026-10-13. Chinese notes live in docs/new/B2-*.md and install.ps1.)
+#
+# Scope: the *release set* scripts (52 *.py after release-exclude.json) and the third-party
+#        top-level modules they actually import. Verified by:
+#            python -X utf8 _mcp-test\b2_install_check.py selftest
+#        (a missing OR an extra entry is reported as a failure)
+# Python: 3.10+ (baseline 3.10; 3.11/3.12 also fine)
+#
+# Install (either):
+#   powershell -ExecutionPolicy Bypass -File install.ps1
+#   python -m venv .venv-dual-mcp ; .venv-dual-mcp\Scripts\python.exe -m pip install -r requirements.txt
+#
+# NOTE: keep this file ASCII-only. pip parses requirement files with the *locale* encoding
+#       (GBK on this machine) -> a UTF-8 non-ASCII comment breaks `pip install -r` outright.
+#       (Measured the hard way during B2; b2_install_check enforces it.)
+#
+# PyMuPDF (fitz) is NOT needed: `import fitz` only appears in the 29 frozen diagnostic scripts,
+# which are excluded from the release set. fastmcp is NOT needed either: runners/mineru_cloud.py
+# installs an in-process stub for it and only reuses the direct-connection functions.
+
+pypdfium2==5.14.0      # rendering / slicing backend (bundles PDFium); render.py is the only exit
+pypdf==6.19.0          # page operations + text-layer character counts
+pillow==12.3.0         # raster image IO (import PIL)
+numpy==2.5.3           # layout / ink statistics (S0 profile, R1 probe, S4, S7)
+markdown-it-py==4.2.0  # the real parser used by G9; without it G9 degrades to a static check

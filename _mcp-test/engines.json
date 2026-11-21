@@ -1,0 +1,87 @@
+{
+  "schema": 1,
+  "note": "引擎槽位（L1 部署配置，A2）。**两个槽位各自选 engine × mode，mode 对两家引擎对称**——MinerU 也能本地跑。改这个文件不用改代码：S2 之后只读引擎产出的目录，不关心它在哪跑。凭证只写**变量名**（cred_env），永远不写值。 **机器本地物**（venv / 模型缓存 / uv 缓存 / 临时目录）统一放在 `<工具根>/.local/`；slot 里的 `python` 与 `env` 用的都是相对它的路径，**运行时由 `engines.py run` 自动注入**（`runners/paddle_local.py` 里也有一层自保），**不需要人手设环境变量**。",
+  "slots": {
+    "primary": {
+      "engine": "mineru",
+      "mode": "cloud",
+      "adapter": "mineru",
+      "why": "S2 的正文来源必须是主引擎；本机 8 GB 显存也可改 local（见 engines.mineru.modes.local）"
+    },
+    "witness": {
+      "engine": "paddle",
+      "mode": "local",
+      "adapter": "paddle",
+      "why": "D12：见证引擎 = PaddleOCR-VL **本地**（逐页跑、只答「一方有另一方无」与「归属哪页」，文字永不进正文）。本地推理**不上传**。"
+    }
+  },
+  "engines": {
+    "mineru": {
+      "native_layout": "content_list + layout + images",
+      "adapters": [
+        "mineru"
+      ],
+      "modes": {
+        "cloud": {
+          "runner": "_mcp-test/runners/mineru_cloud.py",
+          "cred_env": "MINERU_API_TOKEN",
+          "status": "ready",
+          "requires": {},
+          "python": ".local/venvs/paddle",
+          "note": "经 https://mineru.net/api/v4（批量上传 → 轮询 → 取 zip）；**整页图会上传云端**（隐私口径见 SPEC §3.11）。runner 是**薄 CLI**（`--book <key>`，内部复用 `dual-mcp-bridge/mineru_mcp_wrapper.py` 已验通的直连流程），书级产物落 `books.json` 的 mineru_dir，可断点续跑（已完整即跳过）。"
+        },
+        "local": {
+          "runner": "runners/mineru_local.py",
+          "cred_env": null,
+          "status": "not-installed",
+          "requires": {
+            "vram_mb": 6000,
+            "disk_gb": 20,
+            "python_pkg": "mineru"
+          },
+          "python": ".local/venvs/mineru",
+          "note": "MinerU 开源可本地跑，但**本机未安装**（两个 venv 都没有 mineru/magic-pdf 包，runner 也待建）。装上后把 slots 里的 mode 改成 local 即可，S2/门禁/产物一行不改。"
+        }
+      }
+    },
+    "paddle": {
+      "native_layout": "parsing_res_list + result.json（每页两个 JSON）",
+      "adapters": [
+        "paddle"
+      ],
+      "modes": {
+        "local": {
+          "runner": "_mcp-test/runners/paddle_local.py",
+          "cred_env": null,
+          "status": "ready",
+          "requires": {
+            "vram_mb": 4000,
+            "models_dir": ".local/paddle-home/.paddlex/official_models"
+          },
+          "python": ".local/venvs/paddle",
+          "env": {
+            "USERPROFILE": ".local/paddle-home",
+            "TEMP": ".local/tmp",
+            "TMP": ".local/tmp",
+            "PYTHONUTF8": "1"
+          },
+          "note": "已装：模型 1.93 GB（PaddleOCR-VL-1.6 + PP-DocLayoutV3）。本机实测 8188 MiB 总量 / 6899 MiB 空闲 → 可跑。runner 是**薄 CLI**（`--book <key>`，逐页切片 → 调 `_mcp-test/dump_paddle_raw.py` 的同一逐字段直出实现 → 逐页落盘，可断点续跑）。**本地推理不上传。**"
+        },
+        "cloud": {
+          "runner": "runners/paddle_cloud.py",
+          "cred_env": "PADDLE_API_TOKEN",
+          "status": "planned",
+          "requires": {},
+          "python": ".local/venvs/dual-mcp",
+          "note": "同品牌换部署：只要云端给出「每页两个 JSON」（result.json + parsing_res_list.json），输出布局与本地一致，S2 不用改；runner 待建。"
+        }
+      }
+    }
+  },
+  "combos": {
+    "mineru:cloud+paddle:local": "当前默认（可用）：云端 MinerU（上传整页图）+ 本地 Paddle",
+    "mineru:cloud+paddle:cloud": "Paddle 云端 runner 待建（同品牌换部署，S2 不用改）",
+    "mineru:local+paddle:local": "用户提的『专业 GPU 双本地』：需先装本地 MinerU（本机 8 GB 显存可试）",
+    "mineru:local+paddle:cloud": "同上（MinerU 本地 + Paddle 云端）"
+  }
+}

@@ -1,0 +1,262 @@
+{
+  "schema": 1,
+  "note": "L2 调优参数（B1-4a/4b）：只放**能改变交付结论**的数字（阈值/配额/上限）。契约与格式常量在 contracts.py；实测数据在 measurements/。每个值必须带 basis：measured（有实测）/ ruling（用户或 SPEC 裁定）/ derived（由别的量算出）/ default-unverified（拍的、未验证）。改这个文件不用改代码。",
+  "params": {
+    "ink_threshold_gray": {
+      "value": 120,
+      "basis": "measured",
+      "source": "标定实验（2026-10-13，44 页语料 / 5 个来源）：在 PDFium 灰度图上扫描截止值 100–185，取能复现 MuPDF@128 墨量的值 → 5/5 页一致给出 **120**；见 `渲染后端替换-pypdfium2-结果.md` §8",
+      "note": "像素级灰度阈值（gray < 阈值 = 墨迹）。**与 r1_ink_min 是两回事**（后者是区域墨迹密度）。原值 128 是 MuPDF 时代选的；换 PDFium（经 pypdfium2）后笔画更重，**按 44 页语料标定为 120**：判定级差异从 19 处降到 15 处、段数不同的页从 31 降到 26，并修掉电子版样本上的 `columns_mode` 翻转；**R1 判据三配置下命中集完全相同**。残留差异全在无消费方的咨询字段（候选比例/段数/墨密度中位数）——**不是完全回归，是更接近**。"
+    },
+    "r1_ink_min": {
+      "value": 0.02,
+      "basis": "ruling",
+      "source": "SPEC §4.3-R1 / U-06（要求改为配置项）",
+      "note": "直接决定 R1 命中集 → G11（硬门禁）。U-03 的 bbox 偏差与灵敏度**未测**。"
+    },
+    "align_artifact_chars": {
+      "value": 300,
+      "basis": "default-unverified",
+      "source": "N-7 首轮实现（差异区间任一侧超此长度 → 判对齐失败）",
+      "note": "原先在 s5_queue_gate 与 textnorm **各有一份**，B1-4a 起单点在这里。"
+    },
+    "min_prefix_for_truncation": {
+      "value": 20,
+      "basis": "default-unverified",
+      "source": "N-6 首轮实现（短于此长度的前缀关系不作为截断证据）",
+      "note": "原先同样有重复定义。"
+    },
+    "conf_threshold": {
+      "value": 0.9,
+      "basis": "ruling",
+      "source": "SPEC §4.4 默认阈值",
+      "note": "判定置信度低于此值 → 进升级清单。"
+    },
+    "s6_column_min_blocks": {
+      "value": 3,
+      "basis": "derived",
+      "source": "A3：判定\"该页是两栏\"的最低证据量——左栏与右栏**各**≥3 块才算两栏（否则按单栏）。取自《濒危之城》实测：35/50 页两栏，两栏页每栏中位块数远高于 3；单栏页任一栏都凑不满 3",
+      "note": "栏位判定用**页中线 x=0.5**（x1≤0.5 左栏 / x0≥0.5 右栏 / 跨中线 = 通栏）。**调大 → 更保守**（更少页被判两栏）；调小可能把单栏页的左右半误判成两栏。"
+    },
+    "pages_per_batch": {
+      "value": 40,
+      "basis": "default-unverified",
+      "source": "B0 定的**安全阀**",
+      "note": "实践中通常先触发 items_per_batch；本值未标定。"
+    },
+    "items_per_batch": {
+      "value": 39,
+      "basis": "measured",
+      "source": "A3 真跑《濒危之城》首个判定批：B001 = **恰好 39 条**（20 页，P0 5/P1 17/P3 17）一次会话判完；B002 = 22 条（10 页）。台账 61/61 判完、pending=0",
+      "note": "**已验证的上限**（真书上正好打满、可承受）。注意：**决定判定量的第一变量是准入拒收率**——本书 727 条被拒 666 条（91.6%），所以按页数×1.4 的投影（≈5 批）实际只有 2 批。"
+    },
+    "judge_calibrated": {
+      "value": true,
+      "basis": "measured",
+      "source": "A3 首次整本书交付的第一个判定批（B001 39 条/20 页，2026-10-13）",
+      "note": "置真表示配额已由实测标定：`items_per_batch=39` 为已验证上限；`pages_per_batch=40` 仍是**未标定的安全阀**（实测最大 20 页/批，从未触发）。"
+    },
+    "g10_human_facing_max_per_100": {
+      "value": 20,
+      "basis": "ruling",
+      "source": "SPEC D6 / §5 G10",
+      "note": "靶子只对「给人看的条数」；超阈只 warn，永不阻断。"
+    },
+    "g10_min_pages": {
+      "value": 30,
+      "basis": "ruling",
+      "source": "用户裁定（小样本比率无统计意义）",
+      "note": "样本 < 此页数 → G10 = n/a，不判定。"
+    },
+    "g14_upper95_max": {
+      "value": 0.5,
+      "basis": "ruling",
+      "source": "SPEC §4.6 建议阈值（错误率 95% 上界 ≤0.5 项/页）",
+      "note": "数值本身在 measurements/error-rate.json（数据），这里是**判据**。"
+    },
+    "g14_missing_upper_default": {
+      "value": 9.0,
+      "basis": "default-unverified",
+      "source": "实测数据缺字段时的保守兜底",
+      "note": "取 9 会必然触发上界判据 → 宁可 fail，不静默当 pass。"
+    },
+    "g3_dup_min_chars_ir": {
+      "value": 25,
+      "basis": "default-unverified",
+      "source": "G3 首轮实现（IR 内重复段落的最短长度）",
+      "note": "决定 G3 fail/warn 的灵敏度。"
+    },
+    "g3_dup_min_chars_md": {
+      "value": 30,
+      "basis": "default-unverified",
+      "source": "G3 首轮实现（产物内重复行的最短长度）",
+      "note": "同上。"
+    },
+    "vol_pages_paddle": {
+      "value": 100,
+      "basis": "ruling",
+      "source": "SPEC §3.9 / C0（Paddle 单卷页数上限）",
+      "note": "决定**分卷**。"
+    },
+    "vol_bytes_paddle": {
+      "value": 45000000,
+      "basis": "default-unverified",
+      "source": "C0 取值",
+      "note": "单卷字节上限。"
+    },
+    "vol_pages_mineru": {
+      "value": 180,
+      "basis": "ruling",
+      "source": "SPEC §3.9 / C0（MinerU 单卷页数上限）",
+      "note": "决定**分卷**。"
+    },
+    "vol_bytes_mineru": {
+      "value": 190000000,
+      "basis": "ruling",
+      "source": "SPEC §3.9（MinerU 单卷 ≤190 MB）",
+      "note": "单卷字节上限。"
+    },
+    "s0_row_ink_min_px": {
+      "value": 2.0,
+      "basis": "derived",
+      "source": "观测：页码这类小字号每行只有 1–6 px 墨 → 取下限 2（s0_classify 原注释）",
+      "note": "行被判为「有墨」的最低像素数。改动会改变分段 → 影响版面画像。"
+    },
+    "s0_min_block_ink_px": {
+      "value": 8.0,
+      "basis": "default-unverified",
+      "source": "首轮实现（低于此视为扫描噪点）",
+      "note": "正文块墨量下限。"
+    },
+    "s0_min_block_ink_px_margin": {
+      "value": 4.0,
+      "basis": "derived",
+      "source": "观测：页码在 100 dpi 下 6–14 px 墨（原注释）",
+      "note": "页边带放宽后的墨量下限。"
+    },
+    "s0_margin_frac": {
+      "value": 0.15,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "页边带定义（上下各 15%）。"
+    },
+    "s0_furniture_min_ink_px": {
+      "value": 12,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "页边带「确实有文字」的墨量下限。"
+    },
+    "s0_furniture_min_height_px": {
+      "value": 4,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "页边带文字最小高度。"
+    },
+    "s0_block_gap_frac": {
+      "value": 0.012,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "段落块间空白 ≥ 页高此比例 → 视为「分离」。"
+    },
+    "s0_line_gap_frac": {
+      "value": 0.004,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "行间空白 ≥ 页高此比例 → 视为「换行」。"
+    },
+    "s0_max_furniture_frac": {
+      "value": 0.15,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "页眉/页脚块高度上限（占页高）。"
+    },
+    "s0_gutter_ink_frac": {
+      "value": 0.02,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "栏缝判定：墨量低于此视为「无字」。"
+    },
+    "s0_gutter_min_width_frac": {
+      "value": 0.03,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "栏缝最小宽度（占页宽）。"
+    },
+    "s0_skew_range": {
+      "value": [
+        -2.0,
+        2.0,
+        0.25
+      ],
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "斜角搜索范围与步长（度）。"
+    },
+    "s3_y_gap_frac": {
+      "value": 0.01,
+      "basis": "default-unverified",
+      "source": "首轮实现（注释举过实测例：图题间隙 0.014 > 0.010 会被拆成两个区域）",
+      "note": "区域纵向合并允许的间隙（页高比例）→ 影响**出题**。"
+    },
+    "s3_region_len_ratio_max": {
+      "value": 3.0,
+      "basis": "default-unverified",
+      "source": "首轮实现",
+      "note": "区域级文本长度比超此值 → 记 region_segmentation_mismatch。"
+    },
+    "figcov_grid": {
+      "value": 200,
+      "basis": "default-unverified",
+      "source": "U-15 参考实现默认（`figcov_probe.py`）；89 页试验足够分辨结构式",
+      "note": "图区问责网格边长。400 不是必需；200 与参考实现/实测一致。"
+    },
+    "figcov_hole_min_frac": {
+      "value": 0.3,
+      "basis": "default-unverified",
+      "source": "U-15：p4 真命中 0.54；binwei p1 logo 0.24（25% 只离负例 1 个点）；30% 留余量且低于 3 等分缺 1 个的 ~0.33",
+      "note": "洞占**内容区**（剔除题注带）的比例下限。只有 1 个真阳性，先标 default-unverified；扩语料后再升 measured。"
+    },
+    "figcov_hole_min_page_area": {
+      "value": 0.01,
+      "basis": "default-unverified",
+      "source": "U-15：过滤细条/白边",
+      "note": "洞的绝对面积下限（占整页）。"
+    },
+    "figcov_hole_min_side": {
+      "value": 0.02,
+      "basis": "default-unverified",
+      "source": "U-15：过滤线状噪声",
+      "note": "洞 bbox 的宽、高下限（归一化）。"
+    },
+    "figcov_ink_min_px": {
+      "value": 100,
+      "basis": "default-unverified",
+      "source": "U-15：p4 候选框 300dpi 暗像素约 657–659、空白页边 0；密度 0.005 会被 0.01 误杀",
+      "note": "图区题专用：300dpi 裁图内暗像素绝对数下限。**R1/G11 仍用 r1_ink_min=0.02 的密度判据**，两者互不替代。"
+    },
+    "s6_band_header_frac": {
+      "value": 0.15,
+      "basis": "default-unverified",
+      "source": "S6 原硬编码（`bb[1] < 0.15` 视为页眉带）",
+      "note": "位置判带用；U-04 的**位置兜底尚未实现**，此值目前只影响记录与风险计数。"
+    },
+    "s6_band_footer_frac": {
+      "value": 0.85,
+      "basis": "default-unverified",
+      "source": "S6 原硬编码（`bb[3] > 0.85` 视为页脚带）",
+      "note": "同上。换渲染后端（PDFium）后，S0 的「页码候选」比例会上升，若将来启用位置兜底需按新后端重标定。"
+    },
+    "vision_cover_min_overlap": {
+      "value": 0.5,
+      "basis": "ruling",
+      "source": "B1 转写覆盖对账（2026-10-25）：同一块已有 VISION-INSERT 时，不再要求人第二次确认。完全重合（1.0）折叠；只重合 30% 不折叠（负例在 s7_output selftest）→ 取 0.5 为界",
+      "note": "面积重合 ≥ 0.5（或块中心落在转写框内）才算‘已被转写覆盖’。**纯记账**：不改任何门禁判据，只决定那条 empty_block/截断还发不发 REVIEW。"
+    },
+    "figure_max_px": {
+      "value": 600,
+      "basis": "ruling",
+      "source": "用户裁定 2026-11-15（第二轮）：300dpi 宽图 1300–1900px，Markdown `![]()` 不能指定显示宽度 → 按 **600px** 等比缩小（先试 900 仍嫌大；600px ≈ 半页宽）",
+      "note": "图片裁剪后的**最大宽度**（px）；0 = 不缩。只影响交付物里的图，不改引擎原生产物"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+# 机器本地物（装环境/跑 demo 后出现，不进仓库）
+.local/
+.venv*/
+.uv-cache/
+.paddle-home/
+.tmp-vl/
+
+# Python 缓存
+__pycache__/
+*.pyc
+
+# 数据与产物（跑书之后出现；仓库只放代码与文档）
+books.json
+books-removed.jsonl
+s0-profiles/
+s2-ir/
+s3-out/
+s4-out/
+s5-out/
+s6-out/
+s7-out/
+ocr-raw/
+trash/
+
+# 临时与密钥痕迹
+*.log
+*.err
+.secrets/

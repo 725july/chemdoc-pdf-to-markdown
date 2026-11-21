@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "note": "书注册表的**示例/模板**（SPEC §3.13）。真正的注册表是**数据**，放在**数据根**下的 `books.json`（默认 = 工具根，可用 CHEMDOC_ROOT 指到别处）；本文件随发布集走，只演示格式。字段：label/key/pdf/mineru_dir/paddle_dir/profile 必填（路径写**相对数据根**的 POSIX 风格）；可选 page_labels/source_pdf/source_ranges/chapter_anchors/toc_pages/layout/privacy_ack/notice/state/retired_at/why。其中：`toc_pages` = 目录页（**源 PDF 物理页号**数组）；`layout` = 版式声明段列表，每段 `{\"pages\":[[a,b]], \"kind\":\"单栏|两栏|主副栏|三栏\", \"regions\":1|2|3, \"cuts\":[…0-1 之间的切分线…]}`（**页段必须恰好覆盖 source_ranges**；不声明就按几何排序）；`privacy_ack` = 是否允许整页图上传云端（布尔）。state=retired 表示这本书不再维护（不要求数据在位），必须带 why。",
+  "books": {
+    "示例条目（复制这一条改成你的书）": {
+      "label": "我的第一本书（示例）",
+      "key": "my-first-book",
+      "pdf": "_test-inputs/my-first-book.pdf",
+      "mineru_dir": "ocr-raw/mineru-my-first-book",
+      "paddle_dir": "ocr-raw/paddle-my-first-book",
+      "profile": "s0-profiles/my-first-book.profile.json",
+      "page_labels": [1, 2, 3],
+      "notice": "示例条目：请把这条替换成你自己的书（可用 `intake.py add` 自动写入）。"
+    }
+  }
+}

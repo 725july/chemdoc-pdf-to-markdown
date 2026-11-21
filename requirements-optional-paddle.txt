@@ -1,0 +1,21 @@
+# OPTIONAL: local witness engine (PaddleOCR-VL) -- SPEC 7.10 / 6.2
+#
+# When you need it: to actually run the witness engine (cross-page ownership and
+# "one engine has it, the other does not" checks depend on it).
+# Not installing it is fine: with no witness engine those checks are recorded as
+# `unverified` (a legal degradation), and delivery still works.
+#
+# Install into a SEPARATE venv (default `.venv-paddle`, matching the `python` field in
+# _mcp-test/engines.json):
+#   powershell -ExecutionPolicy Bypass -File install.ps1 -WithPaddle
+#
+# Why separate: the two stacks disagree on numpy (main venv measured 2.5.3, Paddle stack
+# measured 2.3.5); mixing them in one venv breaks each other. The Paddle stack is ~2 GB and
+# needs a GPU (RTX 4060 Laptop, 8188 MiB total, measured OK on this machine). First run also
+# downloads models (~1.93 GB: PaddleOCR-VL-1.6 + PP-DocLayoutV3) into
+# .paddle-home/.paddlex/official_models (engines.json -> requires.models_dir).
+#
+# ASCII-only on purpose: pip parses requirement files with the locale encoding.
+
+paddlepaddle-gpu==3.2.1
+paddleocr==3.7.0
